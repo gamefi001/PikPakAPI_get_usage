@@ -293,6 +293,35 @@ class PikPakApi:
         )
         return result
 
+    # 取容量
+    async def get_usage(
+        self,
+        size: int = 100,
+        parent_id: Optional[str] = None,
+        next_page_token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        size: int - 每次请求的数量
+        parent_id: str - 父文件夹id, 默认列出根目录
+        next_page_token: str - 下一页的page token
+
+        获取文件列表，可以获得文件下载链接
+        """
+        list_url = f"https://{self.PIKPAK_API_HOST}/drive/v1/about"
+        list_data = {
+            "parent_id": parent_id,
+            "thumbnail_size": "SIZE_MEDIUM",
+            "limit": size,
+            "with_audit": "true",
+            "next_page_token": next_page_token,
+            "filters": """{"trashed":{"eq":false},"phase":{"eq":"PHASE_TYPE_COMPLETE"}}""",
+        }
+        result = await self._request_get(
+            list_url, list_data, self.get_headers(), self.proxy
+        )
+        return result
+
+    
     async def events(
         self, size: int = 100, next_page_token: Optional[str] = None
     ) -> Dict[str, Any]:
